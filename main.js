@@ -14,7 +14,10 @@ client.on('message', message => {
     const command = args.shift().toLowerCase();
 
     if (command === 'help') {
-        message.channel.send(`Try one of the following commands: \n${"`!me`"} Info about yourself \n${"`!ghibli help`"} Info about Ghibli movies`)
+        message.channel.send(`Try one of the following commands: \n\
+${"`!me`"} Info about yourself \n\
+${"`!ghibli help`"} Info about Ghibli movies\n\
+${"`!avater @user`"} To get the users profile picture`);
     };
 
     if (command === 'me') {
@@ -24,14 +27,13 @@ client.on('message', message => {
     if (command === 'test') {
         const first_msg = message.content;
         message.channel.send(`The first message ${first_msg}`);
-    }
+    };
 
     if (command === 'avatar') {
         const tagged_user_id = message.mentions.users.toJSON()[0].id;
         const tagged_user_avatar = message.mentions.users.toJSON()[0].avatar;
-       /*  message.channel.send(`Test: ${}`); */
-        console.log(`ID: ${tagged_user_id}, Avatar ${tagged_user_avatar}`);
-    }
+        message.channel.send(`https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`);
+    };
 
 
 
