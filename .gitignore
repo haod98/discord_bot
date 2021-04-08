@@ -1,4 +1,9 @@
+#Discord js modules
 node_modules
+
+#API Token
 config.json
+
+#Dependencies
 package.json
 package-lock.json
