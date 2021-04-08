@@ -30,9 +30,16 @@ ${"`!avater @user`"} To get the users profile picture`);
     };
 
     if (command === 'avatar') {
-        const tagged_user_id = message.mentions.users.toJSON()[0].id;
-        const tagged_user_avatar = message.mentions.users.toJSON()[0].avatar;
-        message.channel.send(`https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`);
+        if (!message.mentions.users.size) {
+            console.log(message.mentions.users.size, !message.mentions.users.size);
+            return message.reply(`You need to tag someone`);
+        } else {
+            const tagged_user_id = message.mentions.users.toJSON()[0].id;
+            const tagged_user_avatar = message.mentions.users.toJSON()[0].avatar;
+            const tagged_user = message.mentions.users.first();
+            console.log(!message.mentions.users.size);
+            message.channel.send(`Here is your image from ${tagged_user} https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`);
+        };
     };
 
 
@@ -40,7 +47,7 @@ ${"`!avater @user`"} To get the users profile picture`);
     if (command === 'ghibli') {
         if (!args.length) {
             return message.channel.send(`Try using ${"`!ghibli help`"}`)
-        } else if(args[0] === 'castle'){
+        } else if (args[0] === 'castle') {
             fetch('https://ghibliapi.herokuapp.com/films').then(response => response.json()).then(data => {
                 message.channel.send(data[0].title);
             });
