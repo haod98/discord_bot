@@ -4,12 +4,14 @@
   "description": "A simple discord bot",
   "main": "main.js",
   "scripts": {
-    "start": "node ."
+    "start": "concurrently \"node main.js\" \"node server.js\""
   },
   "author": "Hao",
   "license": "ISC",
   "dependencies": {
+    "concurrently": "^6.0.1",
     "discord.js": "^12.5.3",
+    "express": "^4.17.1",
     "node-fetch": "^2.6.1"
   }
 }
