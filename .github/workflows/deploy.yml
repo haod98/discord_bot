@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: "14"
       - run: node create_config.js ${{secrets.DISCORD_TOKEN}} ${{secrets.DOG_TOKEN}} ${{secrets.CAT_TOKEN}}
+      - run: git add -f config.json && git commit -m 'Add config file'
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API}}
