@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-const { prefix, token } = require('./config.json');
+const { prefix, token, dog_token, cat_token } = require('./config.json');
 const fetch = require('node-fetch');
 const client = new Discord.Client();
 
@@ -52,18 +52,35 @@ client.on('message', message => {
         if (!args.length) {
             return message.channel.send(`Try using ${"`!cat help`"}`);
         } else if (args[0] === 'fact') {
-            return !fetch('https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=1').then(response => response.json()).then(data => {
+            return fetch('https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=1').then(response => response.json()).then(data => {
                 message.channel.send(data.text);
             });
         } else if (args[0] === 'img') {
-            return fetch('https://aws.random.cat/meow').then(response => response.json()).then(data => {
-                message.channel.send(data.file);
+            return fetch(`https://api.thecatapi.com/v1/images/search?api_key=${cat_token}`).then(response => response.json()).then(data => {
+                message.channel.send(data[0].url);
             });
         } else if (args[0] === 'help') {
             return message.channel.send(`${"`!cat facts`"} for random cat facts\n${"`!cat img`"} for random cat images`);
         };
         message.channel.send(`No argument for **${args[0]}**. Try using ${"`!cat help`"}`);
+    };
 
+    if (command === 'dog') {
+        if (!args.length) {
+            return message.channel.send(`Try using ${"`!dog help`"}`);
+        } else if (args[0] === 'fact') {
+            return fetch('https://cat-fact.herokuapp.com/facts/random?animal_type=dog&amount=1').then(response => response.json()).then(data => {
+                message.channel.send(data.text);
+            });
+        } else if (args[0] === 'img') {
+            return fetch(`https://api.thedogapi.com/v1/images/search?api_key=${dog_token}`).then(response => response.json()).then(data => {
+                message.channel.send(data[0].url);
+            });
+        } else if (args[0] === 'help') {
+            return message.channel.send(`${"`!dog facts`"} for random cat facts\n${"`!dog img`"} for random dog images`)
+        }
+
+        message.channel.send(`No argument for **${args[0]}**. Try using ${"`!cat help`"}`);
     };
 
 
