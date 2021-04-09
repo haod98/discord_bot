@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 const client = new Discord.Client();
 
 
+
 client.once('ready', () => console.log('Random bot is online'));
 
 client.on('message', message => {
@@ -13,12 +14,17 @@ client.on('message', message => {
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if (command === 'help') {
-        message.channel.send(`Try one of the following commands: \n\
-${"`!me`"} Info about yourself \n\
-${"`!ghibli help`"} Info about Ghibli movies\n\
-${"`!avater @user`"} To get the users profile picture`);
-    };
+    /*     if (command === 'help') {
+            const help_embed = new Discord.MessageEmbed().setColor('#0099ff');
+    
+           channel.send(help_embed);
+    
+    
+                    message.channel.send(`Try one of the following commands: \n\
+            ${"`!me`"} Info about yourself \n\
+            ${"`!ghibli help`"} Info about Ghibli movies\n\
+            ${"`!avater @user`"} To get the users profile picture`);
+        }; */
 
     if (command === 'me') {
         message.channel.send(`Your Username is: ${message.author.username} \nYour ID is: ${message.author.id}`);
@@ -42,13 +48,31 @@ ${"`!avater @user`"} To get the users profile picture`);
         };
     };
 
+    if (command === 'cat') {
+        if (!args.length) {
+            return message.channel.send(`Try using ${"`!cat help`"}`);
+        } else if (args[0] === 'fact') {
+            return !fetch('https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=1').then(response => response.json()).then(data => {
+                message.channel.send(data.text);
+            });
+        } else if (args[0] === 'img') {
+            return fetch('https://aws.random.cat/meow').then(response => response.json()).then(data => {
+                message.channel.send(data.file);
+            });
+        } else if (args[0] === 'help') {
+            return message.channel.send(`${"`!cat facts`"} for random cat facts\n${"`!cat img`"} for random cat images`);
+        };
+        message.channel.send(`No argument for **${args[0]}**. Try using ${"`!cat help`"}`);
+
+    };
+
 
 
     if (command === 'ghibli') {
         if (!args.length) {
             return message.channel.send(`Try using ${"`!ghibli help`"}`)
         } else if (args[0] === 'castle') {
-            fetch('https://ghibliapi.herokuapp.com/films').then(response => response.json()).then(data => {
+            return fetch('https://ghibliapi.herokuapp.com/films').then(response => response.json()).then(data => {
                 message.channel.send(data[0].title);
             });
         };
