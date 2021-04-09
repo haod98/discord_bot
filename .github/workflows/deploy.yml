@@ -1,0 +1,22 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - deploy-actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: node create_config.js ${{secrets.DISCORD_TOKEN}} ${{secrets.DOG_TOKEN}} ${{secrets.CAT_TOKEN}}
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API}}
+          heroku_app_name: "sakkaku-random-bot"
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
