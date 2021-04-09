@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - deploy-actions
 
 jobs:
   build:
@@ -15,7 +14,7 @@ jobs:
         with:
           node-version: "14"
       - run: node create_config.js ${{secrets.DISCORD_TOKEN}} ${{secrets.DOG_TOKEN}} ${{secrets.CAT_TOKEN}}
-      - run: |
+      - run: | # Files need to be commited to deploy them to heroku
           git config user.name "GitHub Actions"
           git config user.email "<>"
           git add -f config.json && git commit -m 'Add config file'
