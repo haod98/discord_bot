@@ -58,6 +58,9 @@ client.on('message', message => {
         } else if (args[0] === 'img') {
             return fetch(`https://api.thecatapi.com/v1/images/search?api_key=${cat_token}`).then(response => response.json()).then(data => {
                 message.channel.send(data[0].url);
+                if (Object.keys(data[0].breeds).length !== 0) {
+                    message.channel.send(`This cat breed is called: **${data[0].breeds[0].name}**`);
+                };
             });
         } else if (args[0] === 'help') {
             return message.channel.send(`${"`!cat facts`"} for random cat facts\n${"`!cat img`"} for random cat images`);
@@ -75,6 +78,9 @@ client.on('message', message => {
         } else if (args[0] === 'img') {
             return fetch(`https://api.thedogapi.com/v1/images/search?api_key=${dog_token}`).then(response => response.json()).then(data => {
                 message.channel.send(data[0].url);
+                if (Object.keys(data[0].breeds).length !== 0) {
+                    message.channel.send(`This dog breed is called: **${data[0].breeds[0].name}**`);
+                };
             });
         } else if (args[0] === 'help') {
             return message.channel.send(`${"`!dog facts`"} for random cat facts\n${"`!dog img`"} for random dog images`)
