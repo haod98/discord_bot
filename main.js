@@ -6,7 +6,6 @@ const client = new Discord.Client();
 
 
 
-
 client.once('ready', () => console.log('Random bot is online'));
 
 client.on('message', message => {
@@ -18,7 +17,28 @@ client.on('message', message => {
         message.channel.send(`Try using \`!${command} help\``);
     };
 
+    const help = () => {
+        const commands_array = Object.keys(commands).slice(1);
 
+        const help_embed = new Discord.MessageEmbed()
+            .setColor('ffa500')
+            .setDescription('Random Bot is a bot with various commands')
+            .setTitle(`Fear not! Random bot is here to save the day ${String.fromCodePoint(0x1F9B8)}`)
+            .setThumbnail('https://cdn.discordapp.com/avatars/828890810622803999/444097a3d9688b2085c20a32b4e64403.png');
+
+        
+        //Adds dynamically help commands
+        const fields = [];
+        for (let i = 0; i < commands_array.length; i++) {
+            const help_command = commands_array[i];
+            fields.push({
+                name: `${String.fromCodePoint(commands[help_command].icon)} !${commands_array[i]} help`,
+                value: `For list of ${commands_array[i]} commands`
+            });
+        };
+        help_embed['fields'] = fields;
+        message.channel.send(help_embed);
+    };
     const animal_fact = (command) => {
         fetch(`https://cat-fact.herokuapp.com/facts/random?animal_type=${command}&amount=1`).then(response => response.json()).then(data => {
             message.channel.send(data.text);
@@ -34,27 +54,27 @@ client.on('message', message => {
         });
     };
 
-
-
     const commands = {
+        help: {
+            _: help
+        },
         cat: {
             _: empty_arg,
             fact: animal_fact,
-            img: () => animal_img('cat', cat_token)
+            img: () => animal_img('cat', cat_token),
+            icon: 0x1F63A
         },
         dog: {
             _: empty_arg,
             fact: animal_fact,
             img: () => animal_img('dog', dog_token),
+            icon: 0x1F436
         }
     };
 
 
-
-
-
     if ((Object.keys(commands)).indexOf(command) === -1) {
-        message.channel.send(`This command doesn't exist`);
+        message.channel.send(`This command doesn't exist. Try using ${"`!help`"}`);
     } else if (args.length === 0) {
         const missing_arg = commands[command]['_'];
         missing_arg(command);
@@ -73,23 +93,6 @@ client.on('message', message => {
      */
 
 
-
-    if (command === 'help') {
-
-
-        /*         message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        description: "A very simple Embed!"
-                    }
-                }); */
-
-        /*         message.channel.send(`Try one of the following commands: \n\
-                    ${"`!me`"} Info about yourself \n\
-                    ${"`!ghibli help`"} Info about Ghibli movies\n\
-                    ${"`!avater @user`"} To get the users profile picture`);
-                    */
-    };
 
 
     switch (command) {
