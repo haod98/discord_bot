@@ -26,8 +26,8 @@ client.on('message', message => {
             .setTitle(`Fear not! Random bot is here to save the day ${String.fromCodePoint(0x1F9B8)}`)
             .setThumbnail('https://cdn.discordapp.com/avatars/828890810622803999/444097a3d9688b2085c20a32b4e64403.png');
 
-        
-        //Adds dynamically help commands
+
+        //Adds dynamically help commands in the embed field
         const fields = [];
         for (let i = 0; i < commands_array.length; i++) {
             const help_command = commands_array[i];
@@ -39,12 +39,15 @@ client.on('message', message => {
         help_embed['fields'] = fields;
         message.channel.send(help_embed);
     };
+
+    //API for animal facts
     const animal_fact = (command) => {
         fetch(`https://cat-fact.herokuapp.com/facts/random?animal_type=${command}&amount=1`).then(response => response.json()).then(data => {
             message.channel.send(data.text);
         });
     };
 
+    //API for animal imgs
     const animal_img = (animal, token) => {
         fetch(`https://api.the${animal}api.com/v1/images/search?api_key=${token}`).then(response => response.json()).then(data => {
             message.channel.send(data[0].url);
@@ -54,6 +57,17 @@ client.on('message', message => {
         });
     };
 
+    //If animal command 'help' is called
+    const animal_help = (animal) => {
+        const animal_embed = new Discord.MessageEmbed()
+            .setColor('4169E1')
+            .setTitle(`${String.fromCodePoint(commands[animal].icon)} List of ${animal} commands`)
+            .setDescription(`\`!${animal} img\` for a random ${animal} image
+            \`!${animal} fact\` for a random ${animal} fact`)
+        message.channel.send(animal_embed);
+    }
+
+    //List of commands with the args
     const commands = {
         help: {
             _: help
@@ -62,37 +76,29 @@ client.on('message', message => {
             _: empty_arg,
             fact: animal_fact,
             img: () => animal_img('cat', cat_token),
-            icon: 0x1F63A
+            icon: 0x1F63A,
+            help: () => animal_help('cat')
         },
         dog: {
             _: empty_arg,
             fact: animal_fact,
             img: () => animal_img('dog', dog_token),
-            icon: 0x1F436
+            icon: 0x1F436,
+            help: () => animal_help('dog')
         }
     };
 
-
-    if ((Object.keys(commands)).indexOf(command) === -1) {
+    if ((Object.keys(commands)).indexOf(command) === -1) { //If command doesn't exist
         message.channel.send(`This command doesn't exist. Try using ${"`!help`"}`);
-    } else if (args.length === 0) {
+    } else if (args.length === 0) { //If the arg is empty
         const missing_arg = commands[command]['_'];
         missing_arg(command);
-    } else {
+    } else if ((Object.keys(commands[command])).indexOf(args[0]) === -1) { //If the arg of a command doesn't exist
+        message.channel.send(`This argument doesn't exist. Try using \`!${command} help\``);
+    } else { //Call command
         const call = commands[command][args[0]];
         call(command);
     };
-
-
-    /*     if (args.length === 0) {
-            missing_arg(command);
-        } else {
-            call(command);
-        }
-    
-     */
-
-
 
 
     switch (command) {
@@ -109,46 +115,7 @@ client.on('message', message => {
                 message.channel.send(`Here is your image from ${tagged_user} https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`);
             };
             break;
-/*         case 'cat':
-            if (!args.length) {
-                return empty_arg('cat');
-            } else if (args[0] === 'fact') {
-                return fetch('https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=1').then(response => response.json()).then(data => {
-                    message.channel.send(data.text);
-                });
-            } else if (args[0] === 'img') {
-                return fetch(`https://api.thecatapi.com/v1/images/search?api_key=${cat_token}`).then(response => response.json()).then(data => {
-                    message.channel.send(data[0].url);
-                    if (Object.keys(data[0].breeds).length !== 0) {
-                        message.channel.send(`This cat breed is called: **${data[0].breeds[0].name}**`);
-                    };
-                });
-            } else if (args[0] === 'help') {
-                return message.channel.send(`${"`!cat facts`"} for random cat facts\n${"`!cat img`"} for random cat images`);
-            };
-            message.channel.send(`No argument for **${args[0]}**. Try using ${"`!cat help`"}`);
-            break;*/
-/*         case 'dog':
-            if (!args.length) {
-                return message.channel.send(`Try using ${"`!dog help`"}`);
-            } else if (args[0] === 'fact') {
-                return fetch('https://cat-fact.herokuapp.com/facts/random?animal_type=dog&amount=1').then(response => response.json()).then(data => {
-                    message.channel.send(data.text);
-                });
-            } else if (args[0] === 'img') {
-                return fetch(`https://api.thedogapi.com/v1/images/search?api_key=${dog_token}`).then(response => response.json()).then(data => {
-                    message.channel.send(data[0].url);
-                    if (Object.keys(data[0].breeds).length !== 0) {
-                        message.channel.send(`This dog breed is called: **${data[0].breeds[0].name}**`);
-                    };
-                });
-            } else if (args[0] === 'help') {
-                return message.channel.send(`${"`!dog facts`"} for random cat facts\n${"`!dog img`"} for random dog images`)
-            }
-
-            message.channel.send(`No argument for **${args[0]}**. Try using ${"`!cat help`"}`);
-            break;
- */        case 'ghibli':
+        case 'ghibli':
             if (!args.length) {
                 return message.channel.send(`Try using ${"`!ghibli help`"}`)
             } else if (args[0] === 'castle') {
