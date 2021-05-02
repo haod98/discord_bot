@@ -33,7 +33,7 @@ client.on('message', message => {
             const help_command = commands_array[i];
             fields.push({
                 name: `${String.fromCodePoint(commands[help_command].icon)} !${commands_array[i]} help`,
-                value: `For list of ${commands_array[i]} commands`
+                value: `For list of ${commands_array[i]} commands`,
             });
         };
         help_embed['fields'] = fields;
@@ -57,7 +57,7 @@ client.on('message', message => {
         });
     };
 
-    //If animal command 'help' is called
+    //If an animal command 'help' is called
     const animal_help = (animal) => {
         const animal_embed = new Discord.MessageEmbed()
             .setColor('4169E1')
@@ -65,6 +65,25 @@ client.on('message', message => {
             .setDescription(`\`!${animal} img\` for a random ${animal} image
             \`!${animal} fact\` for a random ${animal} fact`)
         message.channel.send(animal_embed);
+    };
+    //If !me command is called
+    const about_user = () => {
+        message.channel.send(`${String.fromCodePoint(0x1F440)} Your Username is: **${message.author.username}** \n${String.fromCodePoint(0x1F194)} Your ID is: **${message.author.id}**`);
+    };
+    //Help for !me command
+    const about_user__help = () => {
+        message.channel.send(`Use \`!me\` for \n [_Your Username_] and [_Your unique ID from Discord_]`);
+    };
+
+    const get_avatar = () => {
+        const tagged_user_id = message.mentions.users.toJSON()[0].id;
+        const tagged_user_avatar = message.mentions.users.toJSON()[0].avatar;
+        const tagged_user = message.mentions.users.first();
+        return message.channel.send(`Here is your image from ${tagged_user} https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`);
+    };
+
+    const get_avatar__help = () => {
+        message.channel.send(`Use \`!avatar @[insertUsername]\` to get the avatar of the tagged user`);
     }
 
     //List of commands with the args
@@ -85,48 +104,40 @@ client.on('message', message => {
             img: () => animal_img('dog', dog_token),
             icon: 0x1F436,
             help: () => animal_help('dog')
+        },
+        me: {
+            _: about_user,
+            icon: 0x1F194,
+            help: about_user__help
+        },
+        avatar: {
+            _: empty_arg,
+            icon: 0x1F5BC,
+            help: get_avatar__help,
+            at: () => get_avatar()
         }
     };
 
+
     if ((Object.keys(commands)).indexOf(command) === -1) { //If command doesn't exist
-        message.channel.send(`This command doesn't exist. Try using ${"`!help`"}`);
+        return message.channel.send(`This command doesn't exist. Try using ${"`!help`"}`);
     } else if (args.length === 0) { //If the arg is empty
         const missing_arg = commands[command]['_'];
-        missing_arg(command);
+        return missing_arg(command);
+    } else if (args[0].startsWith('<@')) {
+        if ((Object.keys(commands[command])).indexOf('at') !== -1) {
+            const fn = commands[command]['at'];
+            return fn()
+        }
+        else {
+            return message.channel.send(`This argument doesn't exist. Try using \`!${command} help\``);
+        };
     } else if ((Object.keys(commands[command])).indexOf(args[0]) === -1) { //If the arg of a command doesn't exist
-        message.channel.send(`This argument doesn't exist. Try using \`!${command} help\``);
+        return message.channel.send(`This argument doesn't exist. Try using \`!${command} help\``);
     } else { //Call command
         const call = commands[command][args[0]];
-        call(command);
-    };
-
-
-    switch (command) {
-        case 'me':
-            message.channel.send(`Your Username is: **${message.author.username}** \nYour ID is: **${message.author.id}**`);
-            break;
-        case 'avatar':
-            if (!message.mentions.users.size) {
-                return message.reply(`You need to tag someone`);
-            } else {
-                const tagged_user_id = message.mentions.users.toJSON()[0].id;
-                const tagged_user_avatar = message.mentions.users.toJSON()[0].avatar;
-                const tagged_user = message.mentions.users.first();
-                message.channel.send(`Here is your image from ${tagged_user} https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`);
-            };
-            break;
-        case 'ghibli':
-            if (!args.length) {
-                return message.channel.send(`Try using ${"`!ghibli help`"}`)
-            } else if (args[0] === 'castle') {
-                return fetch('https://ghibliapi.herokuapp.com/films').then(response => response.json()).then(data => {
-                    message.channel.send(data[0].title);
-                });
-            };
-            message.channel.send(`No argument for **${args[0]}**. Try using ${"`!ghibli help`"}`);
-            break;
+        return call(command);
     };
 });
-
 
 client.login(token);
