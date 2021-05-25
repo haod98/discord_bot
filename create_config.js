@@ -4,7 +4,7 @@ const configPath = "./config.json";
 
 if (args.length >= 3) {
   const config = {
-    prefix: "!",
+    prefix: "?",
     token: args[0],
     dog_token: args[1],
     cat_token: args[2],

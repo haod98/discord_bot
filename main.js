@@ -14,7 +14,7 @@ client.on('message', message => {
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
     const empty_arg = (command) => {
-        message.channel.send(`Try using \`!${command} help\``);
+        message.channel.send(`Try using \`${prefix}${command} help\``);
     };
 
     const help = () => {
@@ -32,7 +32,7 @@ client.on('message', message => {
         for (let i = 0; i < commands_array.length; i++) {
             const help_command = commands_array[i];
             fields.push({
-                name: `${String.fromCodePoint(commands[help_command].icon)} !${commands_array[i]} help`,
+                name: `${String.fromCodePoint(commands[help_command].icon)} ${prefix}${commands_array[i]} help`,
                 value: `For list of ${commands_array[i]} commands`,
             });
         };
@@ -62,8 +62,8 @@ client.on('message', message => {
         const animal_embed = new Discord.MessageEmbed()
             .setColor('4169E1')
             .setTitle(`${String.fromCodePoint(commands[animal].icon)} List of ${animal} commands`)
-            .setDescription(`\`!${animal} img\` for a random ${animal} image
-            \`!${animal} fact\` for a random ${animal} fact`)
+            .setDescription(`\`${prefix}${animal} img\` for a random ${animal} image
+            \`${prefix}${animal} fact\` for a random ${animal} fact`)
         message.channel.send(animal_embed);
     };
     //If !me command is called
@@ -72,7 +72,7 @@ client.on('message', message => {
     };
     //Help for !me command
     const about_user__help = () => {
-        message.channel.send(`Use \`!me\` for \n [_Your Username_] and [_Your unique ID from Discord_]`);
+        message.channel.send(`Use \`${prefix}me\` for \n [_Your Username_] and [_Your unique ID from Discord_]`);
     };
 
     const get_avatar = () => {
@@ -83,7 +83,7 @@ client.on('message', message => {
     };
 
     const get_avatar__help = () => {
-        message.channel.send(`Use \`!avatar @[insertUsername]\` to get the avatar of the tagged user`);
+        message.channel.send(`Use \`${prefix}avatar @[insertUsername]\` to get the avatar of the tagged user`);
     }
 
     //List of commands with the args
@@ -120,7 +120,8 @@ client.on('message', message => {
 
 
     if ((Object.keys(commands)).indexOf(command) === -1) { //If command doesn't exist
-        return message.channel.send(`This command doesn't exist. Try using ${"`!help`"}`);
+        const msg = `"${prefix}help"`;
+        return message.channel.send(`This command doesn't exist. Try using ${msg}`);
     } else if (args.length === 0) { //If the arg is empty
         const missing_arg = commands[command]['_'];
         return missing_arg(command);
@@ -130,10 +131,10 @@ client.on('message', message => {
             return fn()
         }
         else {
-            return message.channel.send(`This argument doesn't exist. Try using \`!${command} help\``);
+            return message.channel.send(`This argument doesn't exist. Try using \`${prefix}${command} help\``);
         };
     } else if ((Object.keys(commands[command])).indexOf(args[0]) === -1) { //If the arg of a command doesn't exist
-        return message.channel.send(`This argument doesn't exist. Try using \`!${command} help\``);
+        return message.channel.send(`This argument doesn't exist. Try using \`${prefix}${command} help\``);
     } else { //Call command
         const call = commands[command][args[0]];
         return call(command);
