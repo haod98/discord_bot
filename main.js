@@ -1,4 +1,3 @@
-const request = require('request');
 const Discord = require('discord.js');
 
 const { prefix, token, dog_token, cat_token } = require('./config.json');
@@ -92,15 +91,14 @@ client.on('message', message => {
 
     const randomPokemon = () => {
         const id = randomNumber(1, 898);
-        request(`https://pokeapi.co/api/v2/pokemon/${id}`, {json: true}, (err, res, body) => {
-            if (err) {
-                message.channel.send(`Request failed`);
-                console.log(err);
-                return;
-            }
-
+        fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+        .then(r => r.json())
+        .then(data => {
             // `https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`
-            message.channel.send(`https://www.pokemon.com/us/pokedex/${body.name}`);
+            message.channel.send(`https://www.pokemon.com/us/pokedex/${data.name}`);
+        })
+        .catch(err => {
+            message.channel.send('Failed to get random pokemon');
         });
     };
 
