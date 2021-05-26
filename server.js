@@ -11,7 +11,3 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
-
-setInterval(() => {
-  request(`http://localhost:${port}`);
-}, 1000 * 60 * 28);
