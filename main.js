@@ -89,24 +89,27 @@ client.on('message', message => {
         message.channel.send(`Use \`${prefix}avatar @[insertUsername]\` to get the avatar of the tagged user`);
     }
 
-    const randomPokemon = () => {
-        const id = randomNumber(1, 898);
-        fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-        .then(r => r.json())
-        .then(data => {
-            // `https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`
-            message.channel.send(`https://www.pokemon.com/us/pokedex/${data.name}`);
-        })
-        .catch(err => {
-            message.channel.send('Failed to get random pokemon');
-        });
+    const randomPokemon = async (count) => {
+        const ids = []
+        for (let i = 0; i < count; i++){
+            ids.push(randomNumber(1, 898));
+        }
+        
+        try {
+            const responses = await Promise.all(ids.map(id => fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(r => r.json())));
+            const concat = responses.map(r => r.name).reduceRight((prev, curr) => `${prev}\nhttps://www.pokemon.com/us/pokedex/${curr}`, '');
+            message.channel.send(concat);
+        } catch(e) {
+            message.channel.send('Failed to get random pokemons');
+            console.log(e);
+        }
     };
 
     const pokemon_help = () => {
         const embded = new Discord.MessageEmbed()
             .setColor('4169E1')
             .setTitle(`${String.fromCodePoint(commands.pokemon.icon)} List of pokemon commands`)
-            .setDescription(`\`${prefix}pokemon random\` for a random pokemon`)
+            .setDescription(`\`${prefix}pokemon random [amount]\` for a random pokemon`)
         message.channel.send(embded);
     };
 
@@ -142,7 +145,7 @@ client.on('message', message => {
         },
         pokemon: {
             _: empty_arg,
-            random: () => randomPokemon(),
+            random: (_, arg) => randomPokemon(arg),
             icon: 0x1F43F,
             help: pokemon_help,
         },
@@ -167,7 +170,7 @@ client.on('message', message => {
         return message.channel.send(`This argument doesn't exist. Try using \`${prefix}${command} help\``);
     } else { //Call command
         const call = commands[command][args[0]];
-        return call(command);
+        return call(command, args.slice(1));
     };
 });
 
