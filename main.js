@@ -1,10 +1,14 @@
+const request = require('request');
 const Discord = require('discord.js');
 
 const { prefix, token, dog_token, cat_token } = require('./config.json');
 const fetch = require('node-fetch');
 const client = new Discord.Client();
 
-
+function randomNumber(min, max){
+    const r = Math.random()*(max-min) + min
+    return Math.floor(r)
+}
 
 client.once('ready', () => console.log('Random bot is online'));
 
@@ -86,6 +90,28 @@ client.on('message', message => {
         message.channel.send(`Use \`${prefix}avatar @[insertUsername]\` to get the avatar of the tagged user`);
     }
 
+    const randomPokemon = () => {
+        const id = randomNumber(1, 898);
+        request(`https://pokeapi.co/api/v2/pokemon/${id}`, {json: true}, (err, res, body) => {
+            if (err) {
+                message.channel.send(`Request failed`);
+                console.log(err);
+                return;
+            }
+
+            // `https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`
+            message.channel.send(`https://www.pokemon.com/us/pokedex/${body.name}`);
+        });
+    };
+
+    const pokemon_help = () => {
+        const embded = new Discord.MessageEmbed()
+            .setColor('4169E1')
+            .setTitle(`${String.fromCodePoint(commands.pokemon.icon)} List of pokemon commands`)
+            .setDescription(`\`${prefix}pokemon random\` for a random pokemon`)
+        message.channel.send(embded);
+    };
+
     //List of commands with the args
     const commands = {
         help: {
@@ -115,7 +141,13 @@ client.on('message', message => {
             icon: 0x1F5BC,
             help: get_avatar__help,
             at: () => get_avatar()
-        }
+        },
+        pokemon: {
+            _: empty_arg,
+            random: () => randomPokemon(),
+            icon: 0x1F43F,
+            help: pokemon_help,
+        },
     };
 
 

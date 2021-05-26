@@ -14,4 +14,4 @@ app.listen(port, () => {
 
 setInterval(() => {
   request(`http://localhost:${port}`);
-}, 1000 * 60 * 30);
+}, 1000 * 60 * 28);
