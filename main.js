@@ -89,11 +89,13 @@ client.on('message', message => {
         message.channel.send(`Use \`${prefix}avatar @[insertUsername]\` to get the avatar of the tagged user`);
     }
 
-    const randomPokemon = async (count) => {
+    const randomPokemon = async (count = 1) => {
         const ids = []
         for (let i = 0; i < count; i++){
             ids.push(randomNumber(1, 898));
         }
+
+        if (ids.length == 0) return;
         
         try {
             const responses = await Promise.all(ids.map(id => fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(r => r.json())));
@@ -170,7 +172,7 @@ client.on('message', message => {
         return message.channel.send(`This argument doesn't exist. Try using \`${prefix}${command} help\``);
     } else { //Call command
         const call = commands[command][args[0]];
-        return call(command, args.slice(1));
+        return call(command, ...args.slice(1));
     };
 });
 
