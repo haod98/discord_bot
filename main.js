@@ -1,12 +1,24 @@
 const Discord = require('discord.js');
+const Anilist = require('./src/Anilist');
 
 const { prefix, token, dog_token, cat_token } = require('./config.json');
 const fetch = require('node-fetch');
 const client = new Discord.Client();
+const anilist = new Anilist(true);
 
+// TODO: share
 function randomNumber(min, max){
     const r = Math.random()*(max-min) + min
     return Math.floor(r)
+}
+
+function randomNumbers(min, max, count = 1) {
+    const ids = []
+    for (let i = 0; i < count; i++){
+        ids.push(randomNumber(min, max));
+    }
+
+    return ids;
 }
 
 client.once('ready', () => console.log('Random bot is online'));
@@ -90,11 +102,7 @@ client.on('message', message => {
     }
 
     const randomPokemon = async (count = 1) => {
-        const ids = []
-        for (let i = 0; i < count; i++){
-            ids.push(randomNumber(1, 898));
-        }
-
+        const ids = randomNumbers(1, 898, count);
         if (ids.length == 0) return;
         
         try {
@@ -112,6 +120,58 @@ client.on('message', message => {
             .setColor('4169E1')
             .setTitle(`${String.fromCodePoint(commands.pokemon.icon)} List of pokemon commands`)
             .setDescription(`\`${prefix}pokemon random [amount]\` for a random pokemon`)
+        message.channel.send(embded);
+    };
+
+    const randomAnime = async (type = 1, count = 1) => {
+        if (type == 'character') {
+            const c = parseInt(count, 10);
+            if (isNaN(c)) return;
+
+            const response = await anilist.randomCharacters(c);
+            response.forEach(char => sendCharacter(char));
+        } else {
+            const c = parseInt(type, 10);
+            if (isNaN(c)) return;
+
+            const response = await anilist.randomAnime(c);
+            response.forEach(m => sendMedia(m));
+        }
+    }
+
+    const sendMedia = media => {
+        console.log(media);
+        const embed = new Discord.MessageEmbed()
+            .setTitle(`${media.title.english || media.title.romaji} | ${media.title.native}`)
+            .setFooter(`${media.format} - ${media.status}`)
+            .setURL(media.siteUrl)
+            .setThumbnail(media.coverImage.large);
+
+        if (media.description) {
+            embed.setDescription(media.description.slice(0, 200));
+        }
+
+        message.channel.send(embed);
+    };
+
+    const sendCharacter = char => {
+        const embed = new Discord.MessageEmbed()
+            .setTitle(char.name.full)
+            .setURL(char.siteUrl)
+            .setThumbnail(char.image.large);
+
+        if (char.description) {
+            embed.setDescription(char.description.slice(0, 200));
+        }
+
+        message.channel.send(embed);
+    };
+
+    const anime_help = () => {
+        const embded = new Discord.MessageEmbed()
+            .setColor('4169E1')
+            .setTitle(`${String.fromCodePoint(commands.anime.icon)} List of anime commands`)
+            .setDescription(`\`${prefix}anime random (character?) [amount]\` for a random anime or character`)
         message.channel.send(embded);
     };
 
@@ -151,6 +211,12 @@ client.on('message', message => {
             icon: 0x1F43F,
             help: pokemon_help,
         },
+        anime: {
+            _: empty_arg,
+            random: (_, type, count) => randomAnime(type, count),
+            icon: 0x1F1EF,
+            help: anime_help,
+        }
     };
 
 
