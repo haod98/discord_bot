@@ -102,7 +102,8 @@ client.on('message', message => {
     }
 
     const randomPokemon = async (count = 1) => {
-        const ids = randomNumbers(1, 898, count);
+        if (count < 1) return;
+        const ids = randomNumbers(1, 898, Math.min(count, 5));
         if (ids.length == 0) return;
         
         try {
@@ -119,22 +120,22 @@ client.on('message', message => {
         const embded = new Discord.MessageEmbed()
             .setColor('4169E1')
             .setTitle(`${String.fromCodePoint(commands.pokemon.icon)} List of pokemon commands`)
-            .setDescription(`\`${prefix}pokemon random [amount]\` for a random pokemon`)
+            .setDescription(`\`${prefix}pokemon random [amount:1-5]\` for a random pokemon`)
         message.channel.send(embded);
     };
 
     const randomAnime = async (type = 1, count = 1) => {
         if (type == 'character') {
             const c = parseInt(count, 10);
-            if (isNaN(c)) return;
+            if (isNaN(c) || c < 1) return;
 
-            const response = await anilist.randomCharacters(c);
+            const response = await anilist.randomCharacters(Math.min(c, 5));
             response.forEach(char => sendCharacter(char));
         } else {
             const c = parseInt(type, 10);
-            if (isNaN(c)) return;
+            if (isNaN(c) || c < 1) return;
 
-            const response = await anilist.randomAnime(c);
+            const response = await anilist.randomAnime(Math.min(c, 5));
             response.forEach(m => sendMedia(m));
         }
     }
@@ -171,7 +172,7 @@ client.on('message', message => {
         const embded = new Discord.MessageEmbed()
             .setColor('4169E1')
             .setTitle(`${String.fromCodePoint(commands.anime.icon)} List of anime commands`)
-            .setDescription(`\`${prefix}anime random (character?) [amount]\` for a random anime or character`)
+            .setDescription(`\`${prefix}anime random (character?) [amount:1-5]\` for a random anime or character`)
         message.channel.send(embded);
     };
 
