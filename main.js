@@ -108,8 +108,7 @@ client.on('message', message => {
         
         try {
             const responses = await Promise.all(ids.map(id => fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(r => r.json())));
-            const concat = responses.map(r => r.name).reduceRight((prev, curr) => `${prev}\nhttps://www.pokemon.com/us/pokedex/${curr}`, '');
-            message.channel.send(concat);
+            ids.forEach(id => message.channel.send(`https://zukan.pokemon.co.jp/detail/${id}`));
         } catch(e) {
             message.channel.send('Failed to get random pokemons');
             console.log(e);
