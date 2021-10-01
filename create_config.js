@@ -8,6 +8,10 @@ if (args.length >= 3) {
     token: args[0],
     dog_token: args[1],
     cat_token: args[2],
+    reddit_clientId: args[3],
+    reddit_clientSecret: args[4],
+    reddit_username: args[5],
+    reddit_password: args[6],
   };
 
   if (fs.existsSync(configPath)) {

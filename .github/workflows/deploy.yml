@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - run: node create_config.js ${{secrets.DISCORD_TOKEN}} ${{secrets.DOG_TOKEN}} ${{secrets.CAT_TOKEN}}
+      - run: node create_config.js ${{secrets.DISCORD_TOKEN}} ${{secrets.DOG_TOKEN}} ${{secrets.CAT_TOKEN}} ${{secrets.REDDIT_CLIENTID}} ${{secrets.REDDIT_CLIENTSECRET}} ${{secrets.REDDIT_USERNAME}} ${{secrets.REDDIT_PASSWORD}}
       - run: | # Files need to be commited to deploy them to heroku
           git config user.name "GitHub Actions"
           git config user.email "<>"
