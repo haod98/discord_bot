@@ -241,13 +241,15 @@ client.on("message", (message) => {
       );
     message.channel.send(embded);
   };
+  
+  const send = (obj) => message.channel.send(obj);
 
   const postSketchDaily = async () => {
     const submissions = await reddit
       .getSubreddit("SketchDaily")
       .getNew({ limit: 1 });
     if (submissions.length > 0) {
-      message.channel.send(submissions[0].url);
+      send(submissions[0].url);
     }
   };
 
@@ -262,6 +264,39 @@ client.on("message", (message) => {
       );
     message.channel.send(embded);
   };
+
+  const random_help = () => {
+    const embded = new Discord.MessageEmbed()
+      .setColor("4169E1")
+      .setTitle(
+        `${String.fromCodePoint(commands.draw.icon)} List of random commands`
+      )
+      .setDescription(
+        `\`${prefix}random coin\` to flip a coin`,
+        `\`${prefix}random number [min|0] [max|1]\` to get a random number between range`,
+      );
+    message.channel.send(embded);
+  }
+
+  /**
+   * Returns a random number between min (inclusive) and max (exclusive)
+   */
+  function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  /**
+  * Returns a random integer between min (inclusive) and max (inclusive).
+  * The value is no lower than min (or the next integer greater than min
+  * if min isn't an integer) and no greater than max (or the next integer
+  * lower than max if max isn't an integer).
+  * Using Math.round() will give you a non-uniform distribution!
+  */
+  function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
   //List of commands with the args
   const commands = {
@@ -310,6 +345,13 @@ client.on("message", (message) => {
       icon: 0x270f,
       daily: () => postSketchDaily(),
       help: draw_help,
+    },
+    random: {
+      _: empty_arg,
+      icon: 0x003F,
+      coin: () =>  getRandomInt(0, 1) === 0 ? send("Head") : send("Tails"),
+      number: (_, min, max) => send(getRandomInt(min || 0, max || 1)),
+      help: random_help,
     },
   };
 
