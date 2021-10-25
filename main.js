@@ -230,18 +230,6 @@ client.on("message", (message) => {
     message.channel.send(embed);
   };
 
-  const anime_help = () => {
-    const embded = new Discord.MessageEmbed()
-      .setColor("4169E1")
-      .setTitle(
-        `${String.fromCodePoint(commands.anime.icon)} List of anime commands`
-      )
-      .setDescription(
-        `\`${prefix}anime random (character?) [amount:1-5]\` for a random anime or character`
-      );
-    message.channel.send(embded);
-  };
-  
   const send = (obj) => message.channel.send(obj);
 
   const postSketchDaily = async () => {
@@ -253,45 +241,20 @@ client.on("message", (message) => {
     }
   };
 
-  const draw_help = () => {
+  const print_help = (key, cmds) => {
     const embded = new Discord.MessageEmbed()
       .setColor("4169E1")
       .setTitle(
-        `${String.fromCodePoint(commands.draw.icon)} List of draw commands`
+        `${String.fromCodePoint(commands[key].icon)} List of ${key} commands`
       )
       .setDescription(
-        `\`${prefix}draw daily\` to get current SketchDaily topic`
+        Object.keys(cmds).map((cmd) => {
+          return `\`${prefix}${key} ${cmd}\` ${cmds[cmd]}`;
+        })
       );
     message.channel.send(embded);
   };
 
-  const random_help = () => {
-    const embded = new Discord.MessageEmbed()
-      .setColor("4169E1")
-      .setTitle(
-        `${String.fromCodePoint(commands.draw.icon)} List of random commands`
-      )
-      .setDescription(
-        `\`${prefix}random coin\` to flip a coin`,
-        `\`${prefix}random number [min|0] [max|1]\` to get a random number between range`,
-      );
-    message.channel.send(embded);
-  }
-
-  /**
-   * Returns a random number between min (inclusive) and max (exclusive)
-   */
-  function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  /**
-  * Returns a random integer between min (inclusive) and max (inclusive).
-  * The value is no lower than min (or the next integer greater than min
-  * if min isn't an integer) and no greater than max (or the next integer
-  * lower than max if max isn't an integer).
-  * Using Math.round() will give you a non-uniform distribution!
-  */
   function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -338,20 +301,28 @@ client.on("message", (message) => {
       _: empty_arg,
       random: (_, type, count) => randomAnime(type, count),
       icon: 0x1f1ef,
-      help: anime_help,
+      help: () =>
+        print_help("anime", {
+          "random (character?) [amount:1-5]": "for a random anime or character",
+        }),
     },
     draw: {
       _: empty_arg,
       icon: 0x270f,
       daily: () => postSketchDaily(),
-      help: draw_help,
+      help: () =>
+        print_help("draw", { daily: "to get current SketchDaily topic" }),
     },
     random: {
       _: empty_arg,
-      icon: 0x003F,
-      coin: () =>  getRandomInt(0, 1) === 0 ? send("Head") : send("Tails"),
+      icon: 0x2753,
+      coin: () => (getRandomInt(0, 1) === 0 ? send("Head") : send("Tails")),
       number: (_, min, max) => send(getRandomInt(min || 0, max || 1)),
-      help: random_help,
+      help: () =>
+        print_help("random", {
+          coin: "to flip a coin",
+          "number [min|0] [max|1]": "to get a random number between range",
+        }),
     },
   };
 
