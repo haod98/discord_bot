@@ -13,6 +13,7 @@ const {
   reddit_username,
 } = require("./config.json");
 const fetch = require("node-fetch");
+const { randomNumber, randomNumbers } = require("./src/utils");
 const client = new Discord.Client();
 const anilist = new Anilist(true);
 
@@ -24,21 +25,6 @@ const reddit = new Snoowrap({
   username: reddit_username,
   password: reddit_password,
 });
-
-// TODO: share
-function randomNumber(min, max) {
-  const r = Math.random() * (max - min) + min;
-  return Math.floor(r);
-}
-
-function randomNumbers(min, max, count = 1) {
-  const ids = [];
-  for (let i = 0; i < count; i++) {
-    ids.push(randomNumber(min, max));
-  }
-
-  return ids;
-}
 
 client.once("ready", () => console.log("Random bot is online"));
 
@@ -105,19 +91,6 @@ client.on("message", (message) => {
         }
       });
   };
-
-  //If an animal command 'help' is called
-  const animal_help = (animal) => {
-    const animal_embed = new Discord.MessageEmbed()
-      .setColor("4169E1")
-      .setTitle(
-        `${String.fromCodePoint(
-          commands[animal].icon
-        )} List of ${animal} commands`
-      ).setDescription(`\`${prefix}${animal} img\` for a random ${animal} image
-            \`${prefix}${animal} fact\` for a random ${animal} fact`);
-    message.channel.send(animal_embed);
-  };
   //If !me command is called
   const about_user = () => {
     message.channel.send(
@@ -126,12 +99,6 @@ client.on("message", (message) => {
       }** \n${String.fromCodePoint(0x1f194)} Your ID is: **${
         message.author.id
       }**`
-    );
-  };
-  //Help for !me command
-  const about_user__help = () => {
-    message.channel.send(
-      `Use \`${prefix}me\` for \n [_Your Username_] and [_Your unique ID from Discord_]`
     );
   };
 
@@ -144,23 +111,12 @@ client.on("message", (message) => {
     );
   };
 
-  const get_avatar__help = () => {
-    message.channel.send(
-      `Use \`${prefix}avatar @[insertUsername]\` to get the avatar of the tagged user`
-    );
-  };
-
   const randomPokemon = async (count = 1) => {
     if (count < 1) return;
     const ids = randomNumbers(1, 898, Math.min(count, 5));
     if (ids.length == 0) return;
 
     try {
-      const responses = await Promise.all(
-        ids.map((id) =>
-          fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then((r) => r.json())
-        )
-      );
       ids.forEach((id) =>
         message.channel.send(`https://zukan.pokemon.co.jp/detail/${id}`)
       );
@@ -168,20 +124,6 @@ client.on("message", (message) => {
       message.channel.send("Failed to get random pokemons");
       console.log(e);
     }
-  };
-
-  const pokemon_help = () => {
-    const embded = new Discord.MessageEmbed()
-      .setColor("4169E1")
-      .setTitle(
-        `${String.fromCodePoint(
-          commands.pokemon.icon
-        )} List of pokemon commands`
-      )
-      .setDescription(
-        `\`${prefix}pokemon random [amount:1-5]\` for a random pokemon`
-      );
-    message.channel.send(embded);
   };
 
   const randomAnime = async (type = 1, count = 1) => {
@@ -201,7 +143,6 @@ client.on("message", (message) => {
   };
 
   const sendMedia = (media) => {
-    console.log(media);
     const embed = new Discord.MessageEmbed()
       .setTitle(
         `${media.title.english || media.title.romaji} | ${media.title.native}`
@@ -241,7 +182,7 @@ client.on("message", (message) => {
     }
   };
 
-  const print_help = (key, cmds) => {
+  const printHelp = (key, cmds) => {
     const embded = new Discord.MessageEmbed()
       .setColor("4169E1")
       .setTitle(
@@ -255,73 +196,65 @@ client.on("message", (message) => {
     message.channel.send(embded);
   };
 
-  function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
   //List of commands with the args
   const commands = {
     help: {
       _: help,
     },
     cat: {
-      _: empty_arg,
       fact: animal_fact,
       img: () => animal_img("cat", cat_token),
       icon: 0x1f63a,
-      help: () => animal_help("cat"),
+      help: () =>
+        printHelp("dog", {
+          img: "for a random cat image",
+          fact: "for a random cat fact",
+        }),
     },
     dog: {
-      _: empty_arg,
       fact: animal_fact,
       img: () => animal_img("dog", dog_token),
       icon: 0x1f436,
-      help: () => animal_help("dog"),
+      help: () =>
+        printHelp("dog", {
+          img: "for a random dog image",
+          fact: "for a random dog fact",
+        }),
     },
     me: {
       _: about_user,
       icon: 0x1f194,
-      help: about_user__help,
-    },
-    avatar: {
-      _: empty_arg,
-      icon: 0x1f5bc,
-      help: get_avatar__help,
-      at: () => get_avatar(),
-    },
-    pokemon: {
-      _: empty_arg,
-      random: (_, arg) => randomPokemon(arg),
-      icon: 0x1f43f,
-      help: pokemon_help,
-    },
-    anime: {
-      _: empty_arg,
-      random: (_, type, count) => randomAnime(type, count),
-      icon: 0x1f1ef,
       help: () =>
-        print_help("anime", {
-          "random (character?) [amount:1-5]": "for a random anime or character",
+        printHelp("me", {
+          "": "for \n [_Your Username_] and [_Your unique ID from Discord_]",
         }),
     },
+    avatar: {
+      icon: 0x1f5bc,
+      help: () =>
+        printHelp("avatar", {
+          "@[insertUsername]": "to get the avatar of the tagged user",
+        }),
+      at: () => get_avatar(),
+    },
     draw: {
-      _: empty_arg,
       icon: 0x270f,
       daily: () => postSketchDaily(),
       help: () =>
-        print_help("draw", { daily: "to get current SketchDaily topic" }),
+        printHelp("draw", { daily: "to get current SketchDaily topic" }),
     },
     random: {
-      _: empty_arg,
       icon: 0x2753,
-      coin: () => (getRandomInt(0, 1) === 0 ? send("Head") : send("Tails")),
-      number: (_, min, max) => send(getRandomInt(min || 0, max || 1)),
+      coin: () => (randomNumber(0, 1) === 0 ? send("Head") : send("Tails")),
+      number: (_, min, max) => send(randomNumber(min || 0, max || 1)),
+      anime: (_, type, count) => randomAnime(type, count),
+      pokemon: (_, arg) => randomPokemon(arg),
       help: () =>
-        print_help("random", {
+        printHelp("random", {
           coin: "to flip a coin",
           "number [min|0] [max|1]": "to get a random number between range",
+          "anime (character?) [amount:1-5]": "for a random anime or character",
+          "pokemon [amount:1-5]": "for random pokemons",
         }),
     },
   };
@@ -333,7 +266,11 @@ client.on("message", (message) => {
   } else if (args.length === 0) {
     //If the arg is empty
     const missing_arg = commands[command]["_"];
-    return missing_arg(command);
+    if (missing_arg) {
+      return missing_arg(command);
+    } else {
+      return empty_arg(command);
+    }
   } else if (args[0].startsWith("<@")) {
     if (Object.keys(commands[command]).indexOf("at") !== -1) {
       const fn = commands[command]["at"];
