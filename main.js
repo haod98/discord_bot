@@ -1,7 +1,6 @@
 const Discord = require("discord.js");
 const Anilist = require("./src/Anilist");
 const Snoowrap = require("snoowrap");
-const cron = require("node-cron");
 
 const {
   prefix,
@@ -14,9 +13,10 @@ const {
   reddit_username,
 } = require("./config.json");
 const fetch = require("node-fetch");
-const { randomNumber, randomNumbers } = require("./src/utils");
+const { randomNumber } = require("./src/utils");
 const { CommandRunner } = require("./src/commands");
 const { randomAnime, randomPokemon } = require("./src/commands/random");
+const { addCommand, listCommands, removeCommand } = require("./src/commands/autocmd");
 const client = new Discord.Client();
 const anilist = new Anilist(true);
 
@@ -32,7 +32,7 @@ const reddit = new Snoowrap({
 client.once("ready", () => console.log("Random bot is online"));
 
 client.on("message", (message) => {
-  if (message.content.match(/^?[a-z]+/).length === 0 || message.author.bot) return;
+  if (!message.content.match(new RegExp(`^\\${prefix}[a-z]`)) || message.author.bot) return;
 
   const help = () => {
     const commands_array = Object.keys(commands).slice(1);
@@ -108,14 +108,12 @@ client.on("message", (message) => {
     );
   };
 
-  const send = (obj) => message.channel.send(obj);
-
-  const postSketchDaily = async () => {
+  const postSketchDaily = async (runner) => {
     const submissions = await reddit
       .getSubreddit("SketchDaily")
       .getNew({ limit: 1 });
     if (submissions.length > 0) {
-      send(submissions[0].url);
+      runner.send(submissions[0].url);
     }
   };
 
@@ -176,14 +174,14 @@ client.on("message", (message) => {
     },
     draw: {
       icon: 0x270f,
-      daily: () => postSketchDaily(),
+      daily: postSketchDaily,
       help: () =>
         printHelp("draw", { daily: "to get current SketchDaily topic" }),
     },
     random: {
       icon: 0x2753,
-      coin: () => (randomNumber(0, 1) === 0 ? send("Head") : send("Tails")),
-      number: (_, min, max) => send(randomNumber(min || 0, max || 1)),
+      coin: r => (randomNumber(0, 1) === 0 ? r.send("Head") : r.send("Tails")),
+      number: (r, min, max) => r.send(randomNumber(min || 0, max || 1)),
       anime: randomAnime,
       pokemon: randomPokemon,
       help: () =>
@@ -194,12 +192,22 @@ client.on("message", (message) => {
           "pokemon [amount:1-5]": "for random pokemons",
         }),
     },
+    autocmd: {
+      icon: 0x1f5d8,
+      list: listCommands,
+      add: addCommand,
+      remove: removeCommand,
+      help: () =>
+        printHelp("autocmd", {
+          list: "to list all active auto commands",
+          'add [daily] [hour] [cmd]': "to add a auto command",
+          'remove [id]': "to remove a auto command by id",
+        }),
+    },
   };
 
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-  const command = args.shift().toLowerCase();
   const runner = new CommandRunner(message, prefix, commands);
-  runner.runCommand(command, args);
+  runner.runCommand(message.content.slice(prefix.length));
 
 });
 

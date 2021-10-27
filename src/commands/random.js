@@ -1,6 +1,6 @@
 const { randomNumbers } = require("../utils");
 
-const randomAnime = async (message, type = 1, count = 1) => {
+const randomAnime = async ({message}, type = 1, count = 1) => {
   if (type == "character") {
     const c = parseInt(count, 10);
     if (isNaN(c) || c < 1) return;
@@ -45,7 +45,7 @@ const sendCharacter = (message, char) => {
   message.channel.send(embed);
 };
 
-const randomPokemon = async (message, count = 1) => {
+const randomPokemon = async ({message}, count = 1) => {
   if (count < 1) return;
   const ids = randomNumbers(1, 898, Math.min(count, 5));
   if (ids.length == 0) return;

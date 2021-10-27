@@ -5,11 +5,18 @@ class CommandRunner {
     this.commands = commands;
   }
 
+  send(obj) {
+    this.message.channel.send(obj);
+  }
+
   empty_arg(command) {
     this.message.channel.send(`Try using \`${this.prefix}${command} help\``);
   }
 
-  runCommand(command, args) {
+  runCommand(commandStr) {
+    const args = commandStr.trim().split(/ +/);
+    const command = args.shift().toLowerCase();
+
     if (Object.keys(this.commands).indexOf(command) === -1) {
       //If command doesn't exist
       const msg = `"${this.prefix}help"`;
@@ -41,7 +48,7 @@ class CommandRunner {
     } else {
       //Call command
       const call = this.commands[command][args[0]];
-      return call(this.message, ...args.slice(1));
+      return call(this, ...args.slice(1));
     }
   }
 }
