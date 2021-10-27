@@ -13,7 +13,7 @@ const addCommand = (runner, cronStr, ...args) => {
   const commandStr = args.join(" ");
   const taskObj = { cron: cronExp, command: commandStr, lastExecution: null };
   taskObj.task = cron.schedule(cronExp, () => {
-    const diff = differenceInHours(taskObj.lastExecution, new Date());
+    const diff = differenceInHours(taskObj.lastExecution, new Date(), {roundingMethod: 'floor'});
     if (taskObj.lastExecution != null && diff < 24) {
       const idx = tasks.findIndex((t) => t === taskObj);
 
