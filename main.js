@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const Anilist = require("./src/Anilist");
 const Snoowrap = require("snoowrap");
+const cron = require("node-cron");
 
 const {
   prefix,
@@ -14,6 +15,8 @@ const {
 } = require("./config.json");
 const fetch = require("node-fetch");
 const { randomNumber, randomNumbers } = require("./src/utils");
+const { CommandRunner } = require("./src/commands");
+const { randomAnime, randomPokemon } = require("./src/commands/random");
 const client = new Discord.Client();
 const anilist = new Anilist(true);
 
@@ -29,13 +32,7 @@ const reddit = new Snoowrap({
 client.once("ready", () => console.log("Random bot is online"));
 
 client.on("message", (message) => {
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-  const command = args.shift().toLowerCase();
-  const empty_arg = (command) => {
-    message.channel.send(`Try using \`${prefix}${command} help\``);
-  };
+  if (message.content.match(/^?[a-z]+/).length === 0 || message.author.bot) return;
 
   const help = () => {
     const commands_array = Object.keys(commands).slice(1);
@@ -111,66 +108,6 @@ client.on("message", (message) => {
     );
   };
 
-  const randomPokemon = async (count = 1) => {
-    if (count < 1) return;
-    const ids = randomNumbers(1, 898, Math.min(count, 5));
-    if (ids.length == 0) return;
-
-    try {
-      ids.forEach((id) =>
-        message.channel.send(`https://zukan.pokemon.co.jp/detail/${id}`)
-      );
-    } catch (e) {
-      message.channel.send("Failed to get random pokemons");
-      console.log(e);
-    }
-  };
-
-  const randomAnime = async (type = 1, count = 1) => {
-    if (type == "character") {
-      const c = parseInt(count, 10);
-      if (isNaN(c) || c < 1) return;
-
-      const response = await anilist.randomCharacters(Math.min(c, 5));
-      response.forEach((char) => sendCharacter(char));
-    } else {
-      const c = parseInt(type, 10);
-      if (isNaN(c) || c < 1) return;
-
-      const response = await anilist.randomAnime(Math.min(c, 5));
-      response.forEach((m) => sendMedia(m));
-    }
-  };
-
-  const sendMedia = (media) => {
-    const embed = new Discord.MessageEmbed()
-      .setTitle(
-        `${media.title.english || media.title.romaji} | ${media.title.native}`
-      )
-      .setFooter(`${media.format} - ${media.status}`)
-      .setURL(media.siteUrl)
-      .setThumbnail(media.coverImage.large);
-
-    if (media.description) {
-      embed.setDescription(media.description.slice(0, 200));
-    }
-
-    message.channel.send(embed);
-  };
-
-  const sendCharacter = (char) => {
-    const embed = new Discord.MessageEmbed()
-      .setTitle(char.name.full)
-      .setURL(char.siteUrl)
-      .setThumbnail(char.image.large);
-
-    if (char.description) {
-      embed.setDescription(char.description.slice(0, 200));
-    }
-
-    message.channel.send(embed);
-  };
-
   const send = (obj) => message.channel.send(obj);
 
   const postSketchDaily = async () => {
@@ -202,7 +139,7 @@ client.on("message", (message) => {
       _: help,
     },
     cat: {
-      fact: animal_fact,
+      fact: () => animal_fact("cat"),
       img: () => animal_img("cat", cat_token),
       icon: 0x1f63a,
       help: () =>
@@ -212,7 +149,7 @@ client.on("message", (message) => {
         }),
     },
     dog: {
-      fact: animal_fact,
+      fact: () => animal_fact("dog"),
       img: () => animal_img("dog", dog_token),
       icon: 0x1f436,
       help: () =>
@@ -247,8 +184,8 @@ client.on("message", (message) => {
       icon: 0x2753,
       coin: () => (randomNumber(0, 1) === 0 ? send("Head") : send("Tails")),
       number: (_, min, max) => send(randomNumber(min || 0, max || 1)),
-      anime: (_, type, count) => randomAnime(type, count),
-      pokemon: (_, arg) => randomPokemon(arg),
+      anime: randomAnime,
+      pokemon: randomPokemon,
       help: () =>
         printHelp("random", {
           coin: "to flip a coin",
@@ -259,37 +196,11 @@ client.on("message", (message) => {
     },
   };
 
-  if (Object.keys(commands).indexOf(command) === -1) {
-    //If command doesn't exist
-    const msg = `"${prefix}help"`;
-    return message.channel.send(`This command doesn't exist. Try using ${msg}`);
-  } else if (args.length === 0) {
-    //If the arg is empty
-    const missing_arg = commands[command]["_"];
-    if (missing_arg) {
-      return missing_arg(command);
-    } else {
-      return empty_arg(command);
-    }
-  } else if (args[0].startsWith("<@")) {
-    if (Object.keys(commands[command]).indexOf("at") !== -1) {
-      const fn = commands[command]["at"];
-      return fn();
-    } else {
-      return message.channel.send(
-        `This argument doesn't exist. Try using \`${prefix}${command} help\``
-      );
-    }
-  } else if (Object.keys(commands[command]).indexOf(args[0]) === -1) {
-    //If the arg of a command doesn't exist
-    return message.channel.send(
-      `This argument doesn't exist. Try using \`${prefix}${command} help\``
-    );
-  } else {
-    //Call command
-    const call = commands[command][args[0]];
-    return call(command, ...args.slice(1));
-  }
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const command = args.shift().toLowerCase();
+  const runner = new CommandRunner(message, prefix, commands);
+  runner.runCommand(command, args);
+
 });
 
 client.login(token);
