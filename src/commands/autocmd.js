@@ -1,27 +1,44 @@
 const cron = require("node-cron");
+const { differenceInHours } = require("date-fns");
 
 const tasks = [];
 
 const addCommand = (runner, cronStr, ...args) => {
   const cronExp = cronStr.replace(/-/g, " ");
-  console.log(cronExp);
   if (!cron.validate(cronExp)) {
     runner.send("Invalid syntax");
     return;
   }
 
-  if (cronExp.trim().startsWith("* *") && process.env.NODE_ENV === "prod") {
-    runner.send("STOP, YOU SPAMMER!");
-    return;
-  }
-
   const commandStr = args.join(" ");
-  const task = cron.schedule(cronExp, () => {
+  const taskObj = { cron: cronExp, command: commandStr, lastExecution: null };
+  taskObj.task = cron.schedule(cronExp, () => {
+    const diff = differenceInHours(taskObj.lastExecution, new Date());
+    if (taskObj.lastExecution != null && diff < 24) {
+      const idx = tasks.findIndex((t) => t === taskObj);
+
+      runner.send(
+        `We don't spam people here. Commands can only run once a day.`
+      );
+      setTimeout(() => {
+        if (idx !== -1) {
+          removeCommand(runner, idx);
+        } else {
+          taskObj.task.stop();
+          console.log(
+            "Just stopping the task. Could not find task in the list."
+          );
+        }
+      }, 1000);
+      return;
+    }
+
+    taskObj.lastExecution = new Date();
     const now = new Date().toISOString();
     console.log(`[${now}] Running command: ${cronExp} - ${commandStr}`);
     runner.runCommand(commandStr);
   });
-  tasks.push({ task, cron: cronExp, command: commandStr });
+  tasks.push(taskObj);
   runner.send(`Scheduled command: \`${commandStr}\` with \`${cronExp}\``);
 };
 
@@ -40,6 +57,7 @@ const removeCommand = (runner, id) => {
 
   const taskObj = tasks[index];
   taskObj.task.stop();
+  tasks.splice(index, 1);
   runner.send(`Stopped command: \`${taskObj.command}\``);
 };
 

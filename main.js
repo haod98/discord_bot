@@ -200,7 +200,7 @@ client.on("message", (message) => {
       help: () =>
         printHelp("autocmd", {
           list: "to list all active auto commands",
-          'add [daily] [hour] [cmd]': "to add a auto command",
+          'add [cron] [cmd]': "to add a auto command",
           'remove [id]': "to remove a auto command by id",
         }),
     },
