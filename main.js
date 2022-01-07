@@ -13,9 +13,9 @@ const { CommandRunner } = require("./src/commands");
 const { randomAnime, randomPokemon } = require("./src/commands/random");
 const { addCommand, listCommands, removeCommand } = require("./src/commands/autocmd");
 const { help } = require("./src/commands/help");
-const { postSketchDaily } = require("./src/commands/draw");
+const { postSketchDaily, scheduleWeeklyGesture } = require("./src/commands/draw");
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_SCHEDULED_EVENTS],
 });
 
 client.once("ready", () => console.log("Random bot is online"));
@@ -122,8 +122,12 @@ client.on("message", (message) => {
     draw: {
       icon: 0x270f,
       daily: postSketchDaily,
+      weeklyGesture: scheduleWeeklyGesture,
       help: runner =>
-        runner.send(createHelp("draw", { daily: "to get current SketchDaily topic" })),
+        runner.send(createHelp("draw", {
+          daily: "to get current SketchDaily topic",
+          'weeklyGesture [channelId] [dayOfWeek|1(Saturday)] [time|current time]': 'schedule weekly gesture session for the next week',
+        })),
     },
     random: {
       icon: 0x2753,
