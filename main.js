@@ -89,8 +89,8 @@ client.on("message", (message) => {
     }
   };
 
-  const printHelp = (key, cmds) => {
-    const embded = new Discord.MessageEmbed()
+  const createHelp = (key, cmds) => {
+    return new Discord.MessageEmbed()
       .setColor("4169E1")
       .setTitle(
         `${String.fromCodePoint(commands[key].icon)} List of ${key} commands`
@@ -98,9 +98,8 @@ client.on("message", (message) => {
       .setDescription(
         Object.keys(cmds).map((cmd) => {
           return `\`${prefix}${key} ${cmd}\` ${cmds[cmd]}`;
-        })
+        }).join('\n')
       );
-    message.channel.send(embded);
   };
 
   //List of commands with the args
@@ -112,43 +111,43 @@ client.on("message", (message) => {
       fact: () => animal_fact("cat"),
       img: () => animal_img("cat", cat_token),
       icon: 0x1f63a,
-      help: () =>
-        printHelp("dog", {
+      help: runner =>
+        runner.send(createHelp("dog", {
           img: "for a random cat image",
           fact: "for a random cat fact",
-        }),
+        }))
     },
     dog: {
       fact: () => animal_fact("dog"),
       img: () => animal_img("dog", dog_token),
       icon: 0x1f436,
-      help: () =>
-        printHelp("dog", {
+      help: runner =>
+        runner.send(createHelp("dog", {
           img: "for a random dog image",
           fact: "for a random dog fact",
-        }),
+        })),
     },
     me: {
       _: about_user,
       icon: 0x1f194,
-      help: () =>
-        printHelp("me", {
+      help: runner =>
+        runner.send(createHelp("me", {
           "": "for \n [_Your Username_] and [_Your unique ID from Discord_]",
-        }),
+        })),
     },
     avatar: {
       icon: 0x1f5bc,
-      help: () =>
-        printHelp("avatar", {
+      help: runner =>
+        runner.send(createHelp("avatar", {
           "@[insertUsername]": "to get the avatar of the tagged user",
-        }),
+        })),
       at: () => get_avatar(),
     },
     draw: {
       icon: 0x270f,
       daily: postSketchDaily,
-      help: () =>
-        printHelp("draw", { daily: "to get current SketchDaily topic" }),
+      help: runner =>
+        runner.send(createHelp("draw", { daily: "to get current SketchDaily topic" })),
     },
     random: {
       icon: 0x2753,
@@ -156,25 +155,25 @@ client.on("message", (message) => {
       number: (r, min, max) => r.send(randomNumber(min || 0, max || 1)),
       anime: randomAnime,
       pokemon: randomPokemon,
-      help: () =>
-        printHelp("random", {
+      help: runner =>
+        runner.send(createHelp("random", {
           coin: "to flip a coin",
           "number [min|0] [max|1]": "to get a random number between range",
           "anime (character?) [amount:1-5]": "for a random anime or character",
           "pokemon [amount:1-5]": "for random pokemons",
-        }),
+        })),
     },
     autocmd: {
       icon: 0x1f5d8,
       list: listCommands,
       add: addCommand,
       remove: removeCommand,
-      help: () =>
-        printHelp("autocmd", {
+      help: runner =>
+        runner.send(createHelp("autocmd", {
           list: "to list all active auto commands",
           'add [cron] [cmd]': "to add a auto command",
           'remove [id]': "to remove a auto command by id",
-        }),
+        })),
     },
   };
 
