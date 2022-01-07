@@ -1,16 +1,11 @@
 const Discord = require("discord.js");
 const { Client, Intents } = Discord;
-const Snoowrap = require("snoowrap");
 
 const {
   prefix,
   token,
   dog_token,
   cat_token,
-  reddit_clientId,
-  reddit_clientSecret,
-  reddit_password,
-  reddit_username,
 } = require("./config.json");
 const fetch = require("node-fetch");
 const { randomNumber } = require("./src/utils");
@@ -18,17 +13,9 @@ const { CommandRunner } = require("./src/commands");
 const { randomAnime, randomPokemon } = require("./src/commands/random");
 const { addCommand, listCommands, removeCommand } = require("./src/commands/autocmd");
 const { help } = require("./src/commands/help");
+const { postSketchDaily } = require("./src/commands/draw");
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
-});
-
-const reddit = new Snoowrap({
-  userAgent:
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36",
-  clientId: reddit_clientId,
-  clientSecret: reddit_clientSecret,
-  username: reddit_username,
-  password: reddit_password,
 });
 
 client.once("ready", () => console.log("Random bot is online"));
@@ -76,15 +63,6 @@ client.on("message", (message) => {
     return message.channel.send(
       `Here is your image from ${tagged_user} https://cdn.discordapp.com/avatars/${tagged_user_id}/${tagged_user_avatar}.png`
     );
-  };
-
-  const postSketchDaily = async (runner) => {
-    const submissions = await reddit
-      .getSubreddit("SketchDaily")
-      .getNew({ limit: 1 });
-    if (submissions.length > 0) {
-      runner.send(submissions[0].url);
-    }
   };
 
   const createHelp = (key, cmds) => {
