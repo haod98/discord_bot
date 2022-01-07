@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const { Client, Intents } = Discord;
 const Anilist = require("./src/Anilist");
 const Snoowrap = require("snoowrap");
 
@@ -17,7 +18,10 @@ const { randomNumber } = require("./src/utils");
 const { CommandRunner } = require("./src/commands");
 const { randomAnime, randomPokemon } = require("./src/commands/random");
 const { addCommand, listCommands, removeCommand } = require("./src/commands/autocmd");
-const client = new Discord.Client();
+const { help } = require("./src/commands/help");
+const client = new Client({
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+});
 const anilist = new Anilist(true);
 
 const reddit = new Snoowrap({
@@ -33,36 +37,6 @@ client.once("ready", () => console.log("Random bot is online"));
 
 client.on("message", (message) => {
   if (!message.content.match(new RegExp(`^\\${prefix}[a-z]`)) || message.author.bot) return;
-
-  const help = () => {
-    const commands_array = Object.keys(commands).slice(1);
-
-    const help_embed = new Discord.MessageEmbed()
-      .setColor("ffa500")
-      .setDescription("Random Bot is a bot with various commands")
-      .setTitle(
-        `Fear not! Random bot is here to save the day ${String.fromCodePoint(
-          0x1f9b8
-        )}`
-      )
-      .setThumbnail(
-        "https://cdn.discordapp.com/avatars/828890810622803999/444097a3d9688b2085c20a32b4e64403.png"
-      );
-
-    //Adds dynamically help commands in the embed field
-    const fields = [];
-    for (let i = 0; i < commands_array.length; i++) {
-      const help_command = commands_array[i];
-      fields.push({
-        name: `${String.fromCodePoint(commands[help_command].icon)} ${prefix}${
-          commands_array[i]
-        } help`,
-        value: `For list of ${commands_array[i]} commands`,
-      });
-    }
-    help_embed["fields"] = fields;
-    message.channel.send(help_embed);
-  };
 
   //API for animal facts
   const animal_fact = (command) => {
@@ -91,10 +65,8 @@ client.on("message", (message) => {
   //If !me command is called
   const about_user = () => {
     message.channel.send(
-      `${String.fromCodePoint(0x1f440)} Your Username is: **${
-        message.author.username
-      }** \n${String.fromCodePoint(0x1f194)} Your ID is: **${
-        message.author.id
+      `${String.fromCodePoint(0x1f440)} Your Username is: **${message.author.username
+      }** \n${String.fromCodePoint(0x1f194)} Your ID is: **${message.author.id
       }**`
     );
   };

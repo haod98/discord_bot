@@ -6,7 +6,11 @@ class CommandRunner {
   }
 
   send(obj) {
-    this.message.channel.send(obj);
+    if (typeof obj === 'string') {
+      this.message.channel.send(obj);
+    } else {
+      this.message.channel.send({ embeds: [obj] });
+    }
   }
 
   empty_arg(command) {
@@ -27,7 +31,7 @@ class CommandRunner {
       //If the arg is empty
       const missing_arg = this.commands[command]["_"];
       if (missing_arg) {
-        return missing_arg(command);
+        return missing_arg(this, ...args.slice(1));
       } else {
         return this.empty_arg(command);
       }
