@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A simple discord bot",
   "main": "main.js",
+  "engines": {
+    "node": "16.6.x"
+  },
   "scripts": {
     "start": "concurrently \"NODE_ENV=prod node main.js\" \"node server.js\"",
     "serve": "NODE_ENV=dev node main.js"
