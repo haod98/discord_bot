@@ -126,7 +126,7 @@ client.on("message", (message) => {
       help: runner =>
         runner.send(createHelp("draw", {
           daily: "to get current SketchDaily topic",
-          'weeklyGesture [channelId] [dayOfWeek|1(Saturday)] [time|20:00]': 'schedule weekly gesture session for the next week',
+          'weeklyGesture [channelId] [dayOfWeek|6(Saturday)] [time|20:00]': 'schedule weekly gesture session for the next week',
         })),
     },
     random: {
