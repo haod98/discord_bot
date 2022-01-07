@@ -1,6 +1,5 @@
 const Discord = require("discord.js");
 const { Client, Intents } = Discord;
-const Anilist = require("./src/Anilist");
 const Snoowrap = require("snoowrap");
 
 const {
@@ -22,7 +21,6 @@ const { help } = require("./src/commands/help");
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 });
-const anilist = new Anilist(true);
 
 const reddit = new Snoowrap({
   userAgent:
