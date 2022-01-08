@@ -1,5 +1,5 @@
 const { randomNumber } = require("../utils");
-const { CommandRunner } = require("../commands");
+const { CommandRunner } = require("../command-runner");
 const { randomAnime, randomPokemon } = require("./random");
 const { addCommand, listCommands, removeCommand } = require("./autocmd");
 const { help } = require("./help");
