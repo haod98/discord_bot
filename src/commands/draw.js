@@ -28,10 +28,10 @@ const postSketchDaily = async (runner) => {
     }
 };
 
-const scheduleWeeklyGesture = async (runner, voiceChannel, dayOfWeek = 6, time = '19:00') => {
+const scheduleWeeklyGesture = async (runner, voiceChannel, dayOfWeek = 6, time = '20:00') => {
     runner.message.guild.scheduledEvents.create({
         name: 'Weekly Gesture',
-        scheduledStartTime: nextDay(parse(time, 'HH:mm', new Date), dayOfWeek),
+        scheduledStartTime: nextDay(parse(time, 'HH:mm', new Date(), { locale: 'de-AT' }), dayOfWeek),
         privacyLevel: 'GUILD_ONLY',
         entityType: 'VOICE',
         channel: voiceChannel,
