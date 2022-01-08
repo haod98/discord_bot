@@ -17,7 +17,7 @@ class CommandRunner {
     this.message.channel.send(`Try using \`${this.prefix}${command} help\``);
   }
 
-  runCommand(commandStr) {
+  async runCommand(commandStr) {
     const args = commandStr.trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
