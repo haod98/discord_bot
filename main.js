@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const { Client, Intents } = Discord;
 
-const { token } = require("./config.json");
+const { token, prefix } = require("./config.json");
 const { loadTasksFromDB, tasks } = require("./src/commands/autocmd");
 const { createCommandRunner } = require("./src/commands/commands");
 const client = new Client({

@@ -1,14 +1,10 @@
 const cron = require("node-cron");
 const { differenceInHours } = require("date-fns");
-const { Low, JSONFile } = require('lowdb');
+const { JsonDB } = require('node-json-db');
+const { Config } = require('node-json-db/dist/lib/JsonDBConfig');
 const { createCommandRunner } = require("./commands");
-const { join } = require('path');
 
-const file = join(__dirname, '../../db.json')
-const adapter = new JSONFile(file);
-const db = new Low(adapter);
-db.data ||= { tasks: [] };
-
+const db = new JsonDB(new Config("autocmdDB", true));
 const tasks = [];
 
 const addTask = (runner, data) => {
@@ -53,17 +49,21 @@ const findMessageInChannel = async (client, channelId, messageId) => {
 }
 
 const loadTasksFromDB = async (client) => {
-  await db.read();
-  return Promise.all(db.data.tasks.map(async task => {
-    const message = await findMessageInChannel(client, task.channel, task.message);
-    const runner = createCommandRunner(message);
-    addTask(runner, task);
-  }));
+  try {
+    const loadedTasks = db.getData('/tasks');
+    return Promise.all(loadedTasks.map(async task => {
+      const message = await findMessageInChannel(client, task.channel, task.message);
+      const runner = createCommandRunner(message);
+      addTask(runner, task);
+    }));
+  } catch(e) {
+    console.log(e.message);
+  }
 };
 
-const updateTaskDB = async () => {
-  db.data.tasks = tasks.map(task => ({ cron: task.cronExp, command: task.command, lastExecution: task.lastExecution, message: runner.message.id, channel: runner.message.channelId }));
-  await db.write()
+const updateTaskDB = () => {
+  const data = tasks.map(task => ({ cron: task.cronExp, command: task.command, lastExecution: task.lastExecution, message: runner.message.id, channel: runner.message.channelId }));
+  db.push('/tasks', data);
 };
 
 const addCommand = async (runner, cronStr, ...args) => {
@@ -74,8 +74,10 @@ const addCommand = async (runner, cronStr, ...args) => {
   }
 
   const commandStr = args.join(" ");
-  addTask(runner, { cron: cronExp, command: commandStr, lastExecution: null, message: runner.message.id, channel: runner.message.channelId });
-  await updateTaskDB();
+  const task = { cron: cronExp, command: commandStr, lastExecution: null, message: runner.message.id, channel: runner.message.channelId };
+  addTask(runner, task);
+  updateTaskDB();
+
   runner.send(`Scheduled command: \`${commandStr}\` with \`${cronExp}\``);
 };
 
@@ -95,7 +97,8 @@ const removeCommand = async (runner, id) => {
   const taskObj = tasks[index];
   taskObj.task.stop();
   tasks.splice(index, 1);
-  await updateTaskDB();
+  updateTaskDB();
+
   runner.send(`Stopped command: \`${taskObj.command}\``);
 };
 
