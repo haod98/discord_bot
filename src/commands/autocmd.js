@@ -9,29 +9,29 @@ const tasks = [];
 const addTask = (runner, data) => {
   const task = data;
   task.task = cron.schedule(task.cron, () => {
-    const diff = differenceInHours(task.lastExecution, new Date(), {
-      roundingMethod: "floor",
-    });
-    if (task.lastExecution != null && diff < 24) {
-      const idx = tasks.findIndex((t) => t === task);
+    // const diff = differenceInHours(task.lastExecution, new Date(), {
+    //   roundingMethod: "floor",
+    // });
+    // if (task.lastExecution != null && diff < 24) {
+    //   const idx = tasks.findIndex((t) => t === task);
 
-      runner.send(
-        `We don't spam people here. Commands can only run once a day.`
-      );
-      setTimeout(() => {
-        if (idx !== -1) {
-          removeCommand(runner, idx);
-        } else {
-          task.task?.stop();
-          console.log(
-            "Just stopping the task. Could not find task in the list."
-          );
-        }
-      }, 1000);
-      return;
-    }
+    //   runner.send(
+    //     `We don't spam people here. Commands can only run once a day.`
+    //   );
+    //   setTimeout(() => {
+    //     if (idx !== -1) {
+    //       removeCommand(runner, idx);
+    //     } else {
+    //       task.task?.stop();
+    //       console.log(
+    //         "Just stopping the task. Could not find task in the list."
+    //       );
+    //     }
+    //   }, 1000);
+    //   return;
+    // }
 
-    task.lastExecution = new Date();
+    // task.lastExecution = new Date();
     const now = new Date().toISOString();
     console.log(`[${now}] Running command: ${cronExp} - ${commandStr}`);
     runner.runCommand(commandStr);
@@ -61,7 +61,7 @@ const loadTasksFromDB = async (client, runnerCreator) => {
 };
 
 const updateTaskDB = () => {
-  const data = tasks.map(task => ({ cron: task.cron, command: task.command, lastExecution: task.lastExecution, message: task.message, channel: task.channel }));
+  const data = tasks.map(task => ({ cron: task.cron, command: task.command, /* lastExecution: task.lastExecution, */ message: task.message, channel: task.channel }));
   db.push('/tasks', data);
 };
 
@@ -73,7 +73,7 @@ const addCommand = async (runner, cronStr, ...args) => {
   }
 
   const commandStr = args.join(" ");
-  const task = { cron: cronExp, command: commandStr, lastExecution: null, message: runner.message.id, channel: runner.message.channelId };
+  const task = { cron: cronExp, command: commandStr, /* lastExecution: null, */ message: runner.message.id, channel: runner.message.channelId };
   addTask(runner, task);
   updateTaskDB();
 
