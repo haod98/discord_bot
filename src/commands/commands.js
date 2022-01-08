@@ -1,5 +1,4 @@
 const { randomNumber } = require("../utils");
-const { CommandRunner } = require("../command-runner");
 const { randomAnime, randomPokemon } = require("./random");
 const { addCommand, listCommands, removeCommand } = require("./autocmd");
 const { help } = require("./help");
@@ -7,9 +6,9 @@ const { postSketchDaily, scheduleWeeklyGesture } = require("./draw");
 const fetch = require("node-fetch");
 const Discord = require('discord.js');
 
-const { dog_token, cat_token, prefix } = require('../../config.json');
+const { dog_token, cat_token } = require('../../config.json');
 
-const createCommandRunner = (message) => {
+const createCommands = (message) => {
 
     //API for animal facts
     const animal_fact = (command) => {
@@ -66,8 +65,7 @@ const createCommandRunner = (message) => {
             );
     };
 
-    //List of commands with the args
-    const commands = {
+    return {
         help: {
             _: help,
         },
@@ -144,10 +142,8 @@ const createCommandRunner = (message) => {
                 })),
         },
     };
-
-    return new CommandRunner(message, prefix, commands);
 }
 
 module.exports = {
-    createCommandRunner,
+    createCommands,
 }

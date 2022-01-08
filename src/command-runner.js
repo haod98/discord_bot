@@ -1,3 +1,6 @@
+const { createCommands } = require("./commands/commands");
+const { prefix } = require('../config.json');
+const { addCommand, listCommands, removeCommand } = require("./commands/autocmd.js");
 class CommandRunner {
   constructor(message, prefix, commands) {
     this.message = message;
@@ -57,6 +60,11 @@ class CommandRunner {
   }
 }
 
+const createCommandRunner = (message) => {
+  return new CommandRunner(message, prefix, createCommands(message));
+}
+
 module.exports = {
   CommandRunner,
+  createCommandRunner,
 };

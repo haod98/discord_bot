@@ -2,19 +2,18 @@ const cron = require("node-cron");
 const { differenceInHours } = require("date-fns");
 const { JsonDB } = require('node-json-db');
 const { Config } = require('node-json-db/dist/lib/JsonDBConfig');
-const { createCommandRunner } = require("./commands");
 
 const db = new JsonDB(new Config("autocmdDB", true));
 const tasks = [];
 
 const addTask = (runner, data) => {
   const task = data;
-  task.task = cron.schedule(data.cronExp, () => {
-    const diff = differenceInHours(taskObj.lastExecution, new Date(), {
+  task.task = cron.schedule(task.cron, () => {
+    const diff = differenceInHours(task.lastExecution, new Date(), {
       roundingMethod: "floor",
     });
-    if (taskObj.lastExecution != null && diff < 24) {
-      const idx = tasks.findIndex((t) => t === taskObj);
+    if (task.lastExecution != null && diff < 24) {
+      const idx = tasks.findIndex((t) => t === task);
 
       runner.send(
         `We don't spam people here. Commands can only run once a day.`
@@ -23,7 +22,7 @@ const addTask = (runner, data) => {
         if (idx !== -1) {
           removeCommand(runner, idx);
         } else {
-          taskObj.task.stop();
+          task.task?.stop();
           console.log(
             "Just stopping the task. Could not find task in the list."
           );
@@ -32,7 +31,7 @@ const addTask = (runner, data) => {
       return;
     }
 
-    taskObj.lastExecution = new Date();
+    task.lastExecution = new Date();
     const now = new Date().toISOString();
     console.log(`[${now}] Running command: ${cronExp} - ${commandStr}`);
     runner.runCommand(commandStr);
@@ -40,7 +39,7 @@ const addTask = (runner, data) => {
     { timezone: 'Europe/Vienna' },
   );
 
-  tasks.push(taskObj);
+  tasks.push(task);
 };
 
 const findMessageInChannel = async (client, channelId, messageId) => {
@@ -48,21 +47,21 @@ const findMessageInChannel = async (client, channelId, messageId) => {
   return channel.messages.fetch(messageId);
 }
 
-const loadTasksFromDB = async (client) => {
+const loadTasksFromDB = async (client, runnerCreator) => {
   try {
     const loadedTasks = db.getData('/tasks');
     return Promise.all(loadedTasks.map(async task => {
       const message = await findMessageInChannel(client, task.channel, task.message);
-      const runner = createCommandRunner(message);
+      const runner = runnerCreator(message);
       addTask(runner, task);
     }));
-  } catch(e) {
+  } catch (e) {
     console.log(e.message);
   }
 };
 
 const updateTaskDB = () => {
-  const data = tasks.map(task => ({ cron: task.cronExp, command: task.command, lastExecution: task.lastExecution, message: runner.message.id, channel: runner.message.channelId }));
+  const data = tasks.map(task => ({ cron: task.cron, command: task.command, lastExecution: task.lastExecution, message: task.message, channel: task.channel }));
   db.push('/tasks', data);
 };
 
