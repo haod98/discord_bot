@@ -1,5 +1,4 @@
 const cron = require("node-cron");
-const { differenceInHours } = require("date-fns");
 const { JsonDB } = require('node-json-db');
 const { Config } = require('node-json-db/dist/lib/JsonDBConfig');
 
@@ -8,6 +7,13 @@ const tasks = [];
 
 const addTask = (runner, data) => {
   const task = data;
+
+  if (!cron.validate(task.cron)) {
+    console.log('Invalid cron task', task);
+    return;
+  }
+
+  console.log('Scheduling cron task', task);
   task.task = cron.schedule(task.cron, () => {
     // const diff = differenceInHours(task.lastExecution, new Date(), {
     //   roundingMethod: "floor",
@@ -33,8 +39,8 @@ const addTask = (runner, data) => {
 
     // task.lastExecution = new Date();
     const now = new Date().toISOString();
-    console.log(`[${now}] Running command: ${cronExp} - ${commandStr}`);
-    runner.runCommand(commandStr);
+    console.log(`[${now}] Running command: ${task.cron} - ${task.command}`);
+    runner.runCommand(task.command);
   },
     { timezone: 'Europe/Vienna' },
   );
