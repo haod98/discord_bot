@@ -6,7 +6,7 @@ const { postSketchDaily, scheduleWeeklyGesture } = require("./draw");
 const fetch = require("node-fetch");
 const Discord = require('discord.js');
 
-const { dog_token, cat_token } = require('../../config.json');
+const { dog_token, cat_token, prefix } = require('../../config.json');
 
 const createCommands = (message) => {
 
@@ -65,7 +65,7 @@ const createCommands = (message) => {
             );
     };
 
-    return {
+    const commands = {
         help: {
             _: help,
         },
@@ -141,7 +141,17 @@ const createCommands = (message) => {
                     'remove [id]': "to remove a auto command by id",
                 })),
         },
+        kill: {
+            icon: 0x274C,
+            _: () => { throw new Error('I killed myself'); },
+            help: runner =>
+                runner.send(createHelp('kill', {
+                    "": "to kill me in case I do something stupid",
+                }))
+        }
     };
+
+    return commands;
 }
 
 module.exports = {
