@@ -66,6 +66,7 @@ const loadTasksFromDB = async (client, runnerCreator) => {
   }
 };
 
+// Does not work on heroku. File system changes will not be saved
 const updateTaskDB = () => {
   const data = tasks.map(task => ({ cron: task.cron, command: task.command, /* lastExecution: task.lastExecution, */ message: task.message, channel: task.channel }));
   db.push('/tasks', data);

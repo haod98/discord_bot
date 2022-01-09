@@ -37,7 +37,7 @@ const scheduleWeeklyGesture = async (runner, voiceChannel, dayOfWeek = 6, time =
         channel: voiceChannel,
     });
 
-    runner.send(event.toString());
+    runner.send(await event.createInviteURL());
 };
 
 module.exports = {
