@@ -3,13 +3,23 @@
   "version": "1.0.0",
   "description": "A simple discord bot",
   "main": "main.js",
+  "engines": {
+    "node": "16.6.x"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"NODE_ENV=prod node main.js\" \"node server.js\"",
+    "serve": "NODE_ENV=dev node main.js"
   },
   "author": "Hao",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.5.3",
-    "node-fetch": "^2.6.1"
+    "concurrently": "^6.0.1",
+    "date-fns": "^2.25.0",
+    "discord.js": "^13.5.0",
+    "express": "^4.17.1",
+    "node-cron": "^3.0.0",
+    "node-fetch": "^2.6.1",
+    "node-json-db": "^1.4.1",
+    "snoowrap": "^1.23.0"
   }
 }
