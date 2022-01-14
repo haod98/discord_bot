@@ -1,31 +1,32 @@
 const fetch = require("node-fetch");
 const { MessageEmbed } = require("discord.js");
 
-const getAnimeSearchResult = async (message, url) => {
+const searchAnimeImg = async (message, url) => {
+    const result = await getSearchResult(message, url);
+    console.log(result);
+    const errorMsg = result.error;
+    if (errorMsg) {
+        message.send(`${errorMsg}`);
+    } else {
+        createEmbedMessage(message, result);
+    };
+};
+
+const getSearchResult = async (message, url) => {
     try {
         const fetchData = await fetch(`https://api.trace.moe/search?url=${encodeURIComponent(url)}`);
-        return await fetchData.json();
+        const result = await fetchData.json();
+        return result;
     } catch (e) {
         message.send("Something went wrong");
         console.log(e);
     };
 };
 
-const animeSearch = async (message, url) => {
-    const result = await getAnimeSearchResult(message, url);
-    console.log(result);
-    const errorMsg = result.error;
-    if (errorMsg) {
-        message.send(`${errorMsg}`);
-    } else {
-        sendResult(message, result);
-    }
-}
-
-const sendResult = (message, result) => {
+const createEmbedMessage = (message, result) => {
     const anime = result.result[0];
     console.log(message);
-    const message = new MessageEmbed()
+    const messageEmbed = new MessageEmbed()
         .setColor("AQUA")
         .setDescription('Hello these are my results for the image you were looking for')
         .setURL(`https://anilist.co/anime/${anime.anilist}/`)
@@ -37,7 +38,7 @@ const sendResult = (message, result) => {
             { name: "Video result:", value: `[Video](${anime.video})`, inline: true },
             { name: "Link to anime:", value: `[Anime](https://anilist.co/anime/${anime.anilist}/)`, inline: true },
         )
-    message.send(message);
+    message.send(messageEmbed);
 }
 
-module.exports = { animeSearch };
+module.exports = { searchAnimeImg };

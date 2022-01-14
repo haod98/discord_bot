@@ -3,7 +3,7 @@ const { randomAnime, randomPokemon } = require("./random");
 const { addCommand, listCommands, removeCommand } = require("./autocmd");
 const { help } = require("./help");
 const { postSketchDaily, scheduleWeeklyGesture } = require("./draw");
-const { animeSearch } = require("./anisearch");
+const { searchAnimeImg } = require("./anisearch");
 const fetch = require("node-fetch");
 const Discord = require('discord.js');
 
@@ -152,7 +152,7 @@ const createCommands = (message) => {
         },
         anisearch: {
             icon: 0x1F50D,
-            img: animeSearch,
+            img: searchAnimeImg,
             help: runner =>
                 runner.send(createHelp("anisearch", {
                     "": "`[url]` to reverse search an anime with an image"
