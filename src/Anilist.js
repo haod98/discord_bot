@@ -37,6 +37,26 @@ query ($ids: [Int], $total: Int) {
   }
 }
 `;
+//Search for a specific anime ID
+const singleAnimeQuery = `
+query ($id: Int) {
+    Media (id: $id) {
+        title {
+            english
+            romaji
+            native
+        }
+        status
+        description
+        format
+        siteUrl
+        coverImage {
+            large
+        }
+  }
+}
+`;
+
 
 function randomNumber(min, max) {
   const r = Math.random() * (max - min) + min;
@@ -77,6 +97,10 @@ class Anilist {
       (i) => this.characterIds[i]
     );
     return this.query(characterQuery, { ids, total: ids.length }).then(r => r.data.Page.characters);
+  }
+
+  async getAnime(id) {
+    return this.query(singleAnimeQuery, { id: id }).then(r => console.log(r.data.Media));
   }
 
   async query(query, variables) {
