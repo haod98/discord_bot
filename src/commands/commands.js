@@ -3,13 +3,13 @@ const { randomAnime, randomPokemon } = require("./random");
 const { addCommand, listCommands, removeCommand } = require("./autocmd");
 const { help } = require("./help");
 const { postSketchDaily, scheduleWeeklyGesture } = require("./draw");
+const { animeSearch } = require("./anisearch");
 const fetch = require("node-fetch");
 const Discord = require('discord.js');
 
 const { dog_token, cat_token, prefix } = require('../../config.json');
 
 const createCommands = (message) => {
-
     //API for animal facts
     const animal_fact = (command) => {
         fetch(
@@ -53,6 +53,7 @@ const createCommands = (message) => {
     };
 
     const createHelp = (key, cmds) => {
+        console.log(cmds);
         return new Discord.MessageEmbed()
             .setColor("4169E1")
             .setTitle(
@@ -148,6 +149,14 @@ const createCommands = (message) => {
                 runner.send(createHelp('kill', {
                     "": "to kill me in case I do something stupid",
                 }))
+        },
+        anisearch: {
+            icon: 0x1F50D,
+            img: animeSearch,
+            help: runner =>
+                runner.send(createHelp("anisearch", {
+                    "": "`[url]` to reverse search an anime with an image"
+                })),
         }
     };
 
