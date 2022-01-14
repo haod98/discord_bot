@@ -3,23 +3,23 @@ const { randomNumbers } = require("../utils");
 const Anilist = require("../Anilist");
 const anilist = new Anilist(true);
 
-const randomAnime = async (message, type = 1, count = 1) => {
+const randomAnime = async (runner, type = 1, count = 1) => {
   if (type == "character") {
     const c = parseInt(count, 10);
     if (isNaN(c) || c < 1) return;
 
     const response = await anilist.randomCharacters(Math.min(c, 5));
-    response.forEach((char) => sendCharacter(message, char));
+    response.forEach((char) => sendCharacter(runner, char));
   } else {
     const c = parseInt(type, 10);
     if (isNaN(c) || c < 1) return;
 
     const response = await anilist.randomAnime(Math.min(c, 5));
-    response.forEach((m) => sendMedia(message, m));
+    response.forEach((m) => sendMedia(runner, m));
   }
 };
 
-const sendMedia = (message, media) => {
+const sendMedia = (runner, media) => {
   const embed = new MessageEmbed()
     .setTitle(
       `${media.title.english || media.title.romaji} | ${media.title.native}`
@@ -32,10 +32,10 @@ const sendMedia = (message, media) => {
     embed.setDescription(media.description.slice(0, 200));
   }
 
-  message.send(embed);
+  runner.send(embed);
 };
 
-const sendCharacter = (message, char) => {
+const sendCharacter = (runner, char) => {
   const embed = new MessageEmbed()
     .setTitle(char.name.full)
     .setURL(char.siteUrl)
@@ -45,20 +45,20 @@ const sendCharacter = (message, char) => {
     embed.setDescription(char.description.slice(0, 200));
   }
 
-  message.send(embed);
+  runner.send(embed);
 };
 
-const randomPokemon = async ({ message }, count = 1) => {
+const randomPokemon = async (runner, count = 1) => {
   if (count < 1) return;
   const ids = randomNumbers(1, 898, Math.min(count, 5));
   if (ids.length == 0) return;
 
   try {
     ids.forEach((id) =>
-      message.send(`https://zukan.pokemon.co.jp/detail/${id}`)
+      runner.send(`https://zukan.pokemon.co.jp/detail/${id}`)
     );
   } catch (e) {
-    message.send("Failed to get random pokemons");
+    runner.send("Failed to get random pokemons");
     console.log(e);
   }
 };

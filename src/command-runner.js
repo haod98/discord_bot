@@ -9,10 +9,10 @@ class CommandRunner {
   }
 
   send(obj) {
-    if (typeof obj === 'string') {
-      this.message.channel.send(obj);
-    } else {
+    if (typeof obj === 'object') {
       this.message.channel.send({ embeds: [obj] });
+    } else {
+      this.message.channel.send("" + obj);
     }
   }
 
