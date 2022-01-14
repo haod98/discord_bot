@@ -75,7 +75,7 @@ const createCommands = (message) => {
             img: () => animal_img("cat", cat_token),
             icon: 0x1f63a,
             help: runner =>
-                runner.send(createHelp("dog", {
+                runner.send(createHelp("cat", {
                     img: "for a random cat image",
                     fact: "for a random cat fact",
                 }))
