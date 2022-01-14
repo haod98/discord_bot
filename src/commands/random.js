@@ -3,7 +3,7 @@ const { randomNumbers } = require("../utils");
 const Anilist = require("../Anilist");
 const anilist = new Anilist(true);
 
-const randomAnime = async ({ message }, type = 1, count = 1) => {
+const randomAnime = async (message, type = 1, count = 1) => {
   if (type == "character") {
     const c = parseInt(count, 10);
     if (isNaN(c) || c < 1) return;
@@ -24,7 +24,7 @@ const sendMedia = (message, media) => {
     .setTitle(
       `${media.title.english || media.title.romaji} | ${media.title.native}`
     )
-    .setFooter(`${media.format} - ${media.status}`)
+    // .setFooter(`${media.format} - ${media.status}`)
     .setURL(media.siteUrl)
     .setThumbnail(media.coverImage.large);
 
@@ -32,11 +32,11 @@ const sendMedia = (message, media) => {
     embed.setDescription(media.description.slice(0, 200));
   }
 
-  message.channel.send(embed);
+  message.send(embed);
 };
 
 const sendCharacter = (message, char) => {
-  const embed = new Discord.MessageEmbed()
+  const embed = new MessageEmbed()
     .setTitle(char.name.full)
     .setURL(char.siteUrl)
     .setThumbnail(char.image.large);
@@ -45,7 +45,7 @@ const sendCharacter = (message, char) => {
     embed.setDescription(char.description.slice(0, 200));
   }
 
-  message.channel.send(embed);
+  message.send(embed);
 };
 
 const randomPokemon = async ({ message }, count = 1) => {
@@ -55,10 +55,10 @@ const randomPokemon = async ({ message }, count = 1) => {
 
   try {
     ids.forEach((id) =>
-      message.channel.send(`https://zukan.pokemon.co.jp/detail/${id}`)
+      message.send(`https://zukan.pokemon.co.jp/detail/${id}`)
     );
   } catch (e) {
-    message.channel.send("Failed to get random pokemons");
+    message.send("Failed to get random pokemons");
     console.log(e);
   }
 };
