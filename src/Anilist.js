@@ -44,11 +44,12 @@ query ($id: Int) {
         title {
             english
             romaji
-            native
         }
+        episodes
+        season
         status
         description
-        format
+        averageScore
         siteUrl
         coverImage {
             large
@@ -100,7 +101,7 @@ class Anilist {
   }
 
   async getAnime(id) {
-    return this.query(singleAnimeQuery, { id: id }).then(r => console.log(r.data.Media));
+    return this.query(singleAnimeQuery, { id: id }).then(r => r.data.Media);
   }
 
   async query(query, variables) {
